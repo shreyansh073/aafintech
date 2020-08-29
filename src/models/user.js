@@ -22,17 +22,69 @@ const userSchema = new mongoose.Schema({
         }
     },
     phone: {
-        type: String,
+        type: Number,
         unique: true,
         required: true,
-        minlength: 10,
-        maxlength: 10,
-        validate(value) {
-            if (!validator.isNumeric(value)) {
-                throw new Error('Email is invalid')
-            }
-        }
     },
+    vua: {
+        type: String,
+        unique: true,
+        trim: true
+    },
+    consent: [{
+        consentID: {
+            type: String,
+            required: true
+        },
+        consentHandle: {
+            type: String,
+            required: true
+        },
+        status: {
+            type: String,
+            required: true,
+            enum: ["ACTIVE", "PENDING", "PAUSED", "REVOKED", "EXPIRED"]
+        },
+        productID: {
+            type: String,
+            required: true
+        },
+        accountID: {
+            type: String,
+            required: true
+        },
+        aaId: {
+            type: String,
+            required: true
+        },
+        vua: {
+            type: String,
+            required: true
+        },
+        consentCreationData: {
+            type: Date,
+            required: true
+        },
+        accounts: [{
+            fipName: String,
+            fipId: String,
+            accountType: {
+                type: String,
+                enum: ["DEFAULT","SAVINGS","CURRENT","GSTIN"],
+                default: "DEFAULT"
+            },
+            linkReferenceNumber: String,
+            maskedAccountNumber: String,
+            fiType: {
+                type: String,
+                enum: ["DEPOSIT","TERM-DEPOSIT","RECURRING_DEPOSIT","MUTUAL_FUNDS","CREDIT_CARD","GSTN_GSTR1","GSTN_GSTR2A","GSTN_GSTR3B"]
+            }
+        }]
+    }],
+    deposit: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Deposit'
+    }],
     password: {
         type: String,
         required: true,
