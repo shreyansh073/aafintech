@@ -85,6 +85,14 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Deposit'
     }],
+    termDeposit: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TermDeposit'
+    }],
+    recurringDeposit: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'RecurringDeposit'
+    }],
     password: {
         type: String,
         required: true,

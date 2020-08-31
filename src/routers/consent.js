@@ -15,7 +15,7 @@ const headers = {
 
 const baseUrl = "https://sandbox.moneyone.in/finpro_sandbox";
 
-function containsObject(obj, list) {
+function containsConsentObject(obj, list) {
     var i;
     for (i = 0; i < list.length; i++) {
         console.log(list[i].consentHandle)
@@ -46,7 +46,7 @@ router.get('/consent/list', auth, async (req,res) => {
     const response = await axios(config)
     const consentList = response.data.data
     consentList.map(async (consent) => {
-        if(consent.status === "ACTIVE" && !containsObject(consent,req.user.consent)){
+        if(consent.status === "ACTIVE" && !containsConsentObject(consent,req.user.consent)){
             req.user.consent = req.user.consent.concat(consent)
         }
     })
@@ -72,6 +72,8 @@ router.get('/consent/data', auth, async (req,res) => {
     response = response.data.data
     response.map(async (account) => {
         if(account.Summary && account.Summary.type === "SAVINGS"){
+            const d = await Deposit.find({linkReferenceNumber: account.linkReferenceNumber});
+            //if(d)   continue;
             const deposit = new Deposit(account);
             await deposit.save();
 
