@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema({
     vua: {
         type: String,
         unique: true,
-        trim: true
+        trim: true,
+        required: true
     },
     status: {
         type: String,

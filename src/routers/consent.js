@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const Deposit = require('../models/deposit');
 const axios = require('axios').default;
 const router = new express.Router()
+const client = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_SECRET);
 
 const headers = {
     'Content-Type': 'application/json', 
@@ -28,10 +29,14 @@ function containsConsentObject(obj, list) {
     return false;
 }
 
-router.get('/consent/list', auth, async (req,res) => {
+router.post('/consent/list', auth, async (req,res) => {
+    //req.body contains user's phone number
+    // const user = await User.findOne({phone: req.body.phone})
+    // replace req.user with user everywhere in the endpoint
+
     const data = JSON.stringify({
         "partyIdentifierType":"MOBILE",
-        "partyIdentifierValue":"1999999999",
+        "partyIdentifierValue":"1999999999", // use user's phone number instead
         "productID":"AAFINTECH001",
         "accountID":"AAFintech0073"
     })
@@ -51,9 +56,19 @@ router.get('/consent/list', auth, async (req,res) => {
         }
     })
     await req.user.save()
+    client.messages
+    .create({
+        body: 'Your subscription is complete. You will receive a monthly summary of your financial health from AAFintech',
+        from: '+15005550006',
+        to: `${user.phone}`
+    })
+    .then(message => console.log(message.sid))
+    .catch(error => console.log(error))
+    
     res.send(response.data)
 })
 
+// not required...will be deleted later
 router.get('/consent/data', auth, async (req,res) => {
     const consentID = req.user.consent[0].consentID;
     console.log(consentID)

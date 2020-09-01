@@ -4,12 +4,15 @@ const auth = require('../middleware/auth')
 const router = new express.Router()
 
 router.post('/users', async (req, res) => {
-    const user = new User(req.body)
-
+    let user = await User.findOne({phone:req.body.phone, vua: reeq.body.vua})
+    if(user){
+        res.status(400).send("User already exists");
+    }
     try {
+        user = new User(req.body)
         await user.save()
         const token = await user.generateAuthToken()
-        res.status(201).send({ user, token })
+        res.status(201).send({ user, token, url: "https://aa-sandbox.onemoney.in/onemoney-webapp/auth/login" })
     } catch (e) {
         res.status(400).send(e)
     }

@@ -3,9 +3,9 @@ const Deposit = require('../models/deposit');
 const RecurringDeposit = require('../models/recurringDeposit');
 const TermDeposit = require('../models/termDeposit')
 
-const client = require('twilio')(process.env.TWILIO_TEST_SID, process.env.TWILIO_TEST_SECRET);
+const client = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_SECRET);
 
-const generateSummary = (user) => {
+const generateSummary = async (user) => {
     console.log("generating summary");
 
     let netWorth = 0;
