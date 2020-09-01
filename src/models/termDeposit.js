@@ -218,6 +218,21 @@ const termDepositSchema = new mongoose.Schema({
     timestamps: true
 })
 
+termDepositSchema.methods.percentageChange = async function(){
+    const account = this;
+    let date = new Date();
+    date.setMonth(date.getMonth - 1);
+    const current_balance = parseInt(account.Summary.currentValue);
+    let previous_balance = current_balance;
+    for(const transaction of account.Transactions.Transaction){
+        if(transaction.transactionTimestamp <= date){
+            previous_balance = parseInt(transaction.balance);
+            break;
+        }
+    }
+    return (current_balance-previous_balance)*100/previous_balance;
+}
+
 const TermDeposit = mongoose.model('TermDeposit', termDepositSchema)
 
 module.exports = TermDeposit

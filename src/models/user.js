@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true
     },
+    status: {
+        type: String,
+        required: true,
+        enum: ["NOT-VERIFIED","VERIFIED","VUA","CONSENT_REQUEST","SUBSCRIBED","UNSUBSCRIBED"]
+    },
     consent: [{
         consentID: {
             type: String,

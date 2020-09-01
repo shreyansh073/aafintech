@@ -17,16 +17,17 @@ api.use(consentRouter)
 // Workers
 
 const update = require('./workers/updateDatabase')
-cron.schedule("0 0 * * *", function() {
-    console.log("running a task every minute");
-    update();
-});
+// cron.schedule("0 0 * * *", function() {
+//     console.log("running a task every minute");
+//     update();
+// });
 
 const summary = require('./workers/summaryReport')
-cron.schedule("0 0 1 * *", function() {
-    console.log("running a task every month");
-    summary();
-});
+
+// cron.schedule("0 0 1 * *", function() {
+//     console.log("running a task every month");
+//     summary();
+// });
 
 //create express server
 

@@ -197,6 +197,21 @@ const depositSchema = new mongoose.Schema({
     timestamps: true
 })
 
+depositSchema.methods.percentageChange = async function(){
+    const deposit = this;
+    let date = new Date();
+    date.setMonth(date.getMonth - 1);
+    const current_balance = parseInt(deposit.Summary.currentBalance);
+    let previous_balance = current_balance;
+    for(const transaction of deposit.Transactions.Transaction){
+        if(transaction.transactionTimestamp <= date){
+            previous_balance = parseInt(transaction.currentBalance);
+            break;
+        }
+    }
+    return (current_balance-previous_balance)*100/previous_balance;
+}
+
 const Deposit = mongoose.model('Deposit', depositSchema)
 
 module.exports = Deposit

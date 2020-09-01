@@ -17,7 +17,6 @@ const baseUrl = "https://sandbox.moneyone.in/finpro_sandbox";
 
 const updateUser = async (user) => {
     const consentID = user.consent[0].consentID;
-    console.log(consentID)
     const data = JSON.stringify({
         "consentID": `${consentID}`
     })
