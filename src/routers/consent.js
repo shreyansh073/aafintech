@@ -19,8 +19,6 @@ const baseUrl = "https://sandbox.moneyone.in/finpro_sandbox";
 function containsConsentObject(obj, list) {
     var i;
     for (i = 0; i < list.length; i++) {
-        console.log(list[i].consentHandle)
-        console.log(obj.consentHandle)
         if (list[i].consentHandle === obj.consentHandle) {
             return true;
         }
@@ -53,17 +51,17 @@ router.post('/consent/list', auth, async (req,res) => {
     consentList.map(async (consent) => {
         if(consent.status === "ACTIVE" && !containsConsentObject(consent,req.user.consent)){
             req.user.consent = req.user.consent.concat(consent)
+            client.messages
+            .create({
+                body: 'Your subscription is complete. You will receive a monthly summary of your financial health from AAFintech',
+                from: '+15005550006', // ${process.env.PHONE}
+                to: `+91-8249489314` // ${req.user.phone}
+            })
+            .then(message => console.log(message.sid))
+            .catch(error => console.log(error))
         }
     })
     await req.user.save()
-    client.messages
-    .create({
-        body: 'Your subscription is complete. You will receive a monthly summary of your financial health from AAFintech',
-        from: '+15005550006',
-        to: `${user.phone}`
-    })
-    .then(message => console.log(message.sid))
-    .catch(error => console.log(error))
     
     res.send(response.data)
 })

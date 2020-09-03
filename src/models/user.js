@@ -34,7 +34,6 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        required: true,
         enum: ["NOT-VERIFIED","VERIFIED","VUA","CONSENT_REQUEST","SUBSCRIBED","UNSUBSCRIBED"]
     },
     consent: [{

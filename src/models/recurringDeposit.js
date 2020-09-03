@@ -106,6 +106,11 @@ const recurringDepositSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    bank: {
+        type: String,
+        required: true,
+        trim: true 
+    },
     Profile: {
         Holders: {
             type: {
@@ -219,7 +224,7 @@ const recurringDepositSchema = new mongoose.Schema({
 recurringDepositSchema.methods.percentageChange = async function(){
     const account = this;
     let date = new Date();
-    date.setMonth(date.getMonth - 1);
+    date.setDate(date.getDate() - 30);
     const current_balance = parseInt(account.Summary.currentValue);
     let previous_balance = current_balance;
     for(const transaction of account.Transactions.Transaction){
@@ -228,7 +233,8 @@ recurringDepositSchema.methods.percentageChange = async function(){
             break;
         }
     }
-    return (current_balance-previous_balance)*100/previous_balance;
+    const percent = (current_balance-previous_balance)*100/previous_balance;
+    return percent.toFixed(2);
 }
 
 const RecurringDeposit = mongoose.model('RecurringDeposit', recurringDepositSchema)

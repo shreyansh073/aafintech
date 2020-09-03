@@ -15,33 +15,36 @@ const generateSummary = async (user) => {
     body = body + "DEPOSITS: \n";
     for await (const deposit_id of user.deposit){
         const deposit = await Deposit.findOne({_id: deposit_id});
-        body = body + `Account Number: ${deposit.maskedAccountNumber}\nCurrent Balance: ${deposit.Summary.currentBalance}\nPercentage Change: ${deposit.percentageChange()}%\n\n`;
+        body = body + `Bank: ${deposit.bank}\nAccount Number: ${deposit.maskedAccountNumber}\nCurrent Balance: ${deposit.Summary.currentBalance}\nPercentage Change: ${await deposit.percentageChange()}%\n\n`;
         netWorth = netWorth + parseInt(deposit.Summary.currentBalance)
     }
 
     body = body + "TERM_DEPOSITS: \n";
     for await (const term_deposit_id of user.termDeposit){
         const term_deposit = await TermDeposit.findOne({_id: term_deposit_id});
-        body = body + `Account Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: ${term_deposit.Summary.balance}\nPercentage Change: ${term_deposit.percentageChange()}%\n\n`;
-        netWorth = netWorth + parseInt(term_deposit.Summary.balance)
+        body = body + `Bank: ${term_deposit.bank}\nAccount Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: ${term_deposit.Summary.currentValue}\nPercentage Change: ${await term_deposit.percentageChange()}%\n\n`;
+        netWorth = netWorth + parseInt(term_deposit.Summary.currentValue)
     }
 
     body = body + "RECURRING_DEPOSITS: \n";
     for await (const recurring_deposit_id of user.recurringDeposit){
         const recurring_deposit = await RecurringDeposit.findOne({_id: recurring_deposit_id});
-        body = body + `Account Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${recurring_deposit.Summary.balance}\nPercentage Change: ${recurring_deposit.percentageChange()}%\n\n`;
-        netWorth = netWorth + parseInt(recurring_deposit.Summary.balance)
+        body = body + `Bank: ${recurring_deposit.bank}\nAccount Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${recurring_deposit.Summary.currentValue}\nPercentage Change: ${await recurring_deposit.percentageChange()}%\n\n`;
+        netWorth = netWorth + parseInt(recurring_deposit.Summary.currentValue)
     }
 
     body = body + `NET WORTH: ${netWorth}`
+    console.log(body)
 
     client.messages
     .create({
         body: body,
         from: '+15005550006',
-        to: `${user.phone}`
+        to: `+91-8249489314` //${user.phone}
     })
-    .then(message => console.log(message.sid))
+    .then(message => {
+        console.log(message.sid);
+    })
     .catch(error => console.log(error))
 }
 
