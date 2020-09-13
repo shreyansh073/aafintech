@@ -3,7 +3,8 @@ const Deposit = require('../models/deposit');
 const RecurringDeposit = require('../models/recurringDeposit');
 const TermDeposit = require('../models/termDeposit')
 
-const client = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_SECRET);
+//const client = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_SECRET);
+const axios = require('axios').default;
 
 const generateSummary = async (user) => {
     console.log("generating summary");
@@ -36,16 +37,33 @@ const generateSummary = async (user) => {
     body = body + `NET WORTH: ${netWorth}`
     console.log(body)
 
-    client.messages
-    .create({
-        body: body,
-        from: '+15005550006',
-        to: `+91-8249489314` //${user.phone}
-    })
-    .then(message => {
-        console.log(message.sid);
-    })
-    .catch(error => console.log(error))
+    // client.messages
+    // .create({
+    //     body: body,
+    //     from: '+15005550006',
+    //     to: `+91-8249489314` //${user.phone}
+    // })
+    // .then(message => {
+    //     console.log(message.sid);
+    // })
+    // .catch(error => console.log(error))
+
+    let config = {
+        method: 'get',
+        url: `https://api.textlocal.in/send/?apikey=Ai7lm5cQEZs-0HoYDLGsVGB35E5oVwQyO8jbGfAKm1&numbers=${8504067605}&message=${body}&sender=TXTLCL`,
+        headers: { 
+          'Cookie': 'PHPSESSID=l2opp3fr2npk8u4tbb0f0spuo0'
+        }
+      };
+      
+      axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      
 }
 
 const summary = async () => {

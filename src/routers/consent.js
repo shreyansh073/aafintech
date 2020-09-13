@@ -51,14 +51,30 @@ router.post('/consent/list', auth, async (req,res) => {
     consentList.map(async (consent) => {
         if(consent.status === "ACTIVE" && !containsConsentObject(consent,req.user.consent)){
             req.user.consent = req.user.consent.concat(consent)
-            client.messages
-            .create({
-                body: 'Your subscription is complete. You will receive a monthly summary of your financial health from AAFintech',
-                from: '+15005550006', // ${process.env.PHONE}
-                to: `+91-8249489314` // ${req.user.phone}
-            })
-            .then(message => console.log(message.sid))
-            .catch(error => console.log(error))
+            // client.messages
+            // .create({
+            //     body: 'Your subscription is complete. You will receive a monthly summary of your financial health from AAFintech',
+            //     from: '+15005550006', // ${process.env.PHONE}
+            //     to: `+91-8249489314` // ${req.user.phone}
+            // })
+            // .then(message => console.log(message.sid))
+            // .catch(error => console.log(error))
+            const body = "Your subscription is complete. You will receive a monthly summary of your financial health from AAFintech";
+            let message_config = {
+                method: 'get',
+                url: `https://api.textlocal.in/send/?apikey=Ai7lm5cQEZs-0HoYDLGsVGB35E5oVwQyO8jbGfAKm1&numbers=${8249489314}&message=${body}&sender=TXTLCL`,
+                headers: { 
+                  'Cookie': 'PHPSESSID=l2opp3fr2npk8u4tbb0f0spuo0'
+                }
+              };
+              
+              axios(message_config)
+              .then(function (response) {
+                console.log(JSON.stringify(response.data));
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
         }
     })
     await req.user.save()
