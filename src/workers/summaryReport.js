@@ -2,7 +2,7 @@ const User = require('../models/user');
 const Deposit = require('../models/deposit');
 const RecurringDeposit = require('../models/recurringDeposit');
 const TermDeposit = require('../models/termDeposit')
-
+const fmt = require('indian-number-format');
 //const client = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_SECRET);
 const axios = require('axios').default;
 
@@ -10,31 +10,38 @@ const generateSummary = async (user) => {
     console.log("generating summary");
 
     let netWorth = 0;
-
+    let prev = 0;
     let body = "Your monthly account summary: \n\n";
-
+    let data;
     body = body + "DEPOSITS: \n";
     for await (const deposit_id of user.deposit){
         const deposit = await Deposit.findOne({_id: deposit_id});
-        body = body + `Bank: ${deposit.bank}\nAccount Number: ${deposit.maskedAccountNumber}\nCurrent Balance: ${deposit.Summary.currentBalance}\nPercentage Change: ${await deposit.percentageChange()}%\n\n`;
+        data = await deposit.percentageChange();
+        body = body + `Bank: ${deposit.bank}\nAccount Number: ${deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(deposit.Summary.currentBalance)}\nPercentage Change: ${data.percent}%\n\n`;
         netWorth = netWorth + parseInt(deposit.Summary.currentBalance)
+        prev = prev + data.prev;
     }
 
     body = body + "TERM_DEPOSITS: \n";
     for await (const term_deposit_id of user.termDeposit){
         const term_deposit = await TermDeposit.findOne({_id: term_deposit_id});
-        body = body + `Bank: ${term_deposit.bank}\nAccount Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: ${term_deposit.Summary.currentValue}\nPercentage Change: ${await term_deposit.percentageChange()}%\n\n`;
+        data = await term_deposit.percentageChange();
+        body = body + `Bank: ${term_deposit.bank}\nAccount Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(term_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
         netWorth = netWorth + parseInt(term_deposit.Summary.currentValue)
+        prev = prev + data.prev;
     }
 
     body = body + "RECURRING_DEPOSITS: \n";
     for await (const recurring_deposit_id of user.recurringDeposit){
         const recurring_deposit = await RecurringDeposit.findOne({_id: recurring_deposit_id});
-        body = body + `Bank: ${recurring_deposit.bank}\nAccount Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${recurring_deposit.Summary.currentValue}\nPercentage Change: ${await recurring_deposit.percentageChange()}%\n\n`;
+        data = await recurring_deposit.percentageChange();
+        body = body + `Bank: ${recurring_deposit.bank}\nAccount Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${fmt.format(recurring_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
         netWorth = netWorth + parseInt(recurring_deposit.Summary.currentValue)
+        prev = prev + data.prev;
     }
-
-    body = body + `NET WORTH: ${netWorth}`
+    let change = (netWorth-prev)/(prev);
+    change = change.toFixed(2)
+    body = body + `NET WORTH: INR ${fmt.format(netWorth)}\nPercentage change: ${change}%`
     console.log(body)
 
     // client.messages

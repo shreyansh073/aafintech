@@ -234,7 +234,7 @@ recurringDepositSchema.methods.percentageChange = async function(){
         }
     }
     const percent = (current_balance-previous_balance)*100/previous_balance;
-    return percent.toFixed(2);
+    return {percent: percent.toFixed(2), prev: previous_balance};
 }
 
 const RecurringDeposit = mongoose.model('RecurringDeposit', recurringDepositSchema)
