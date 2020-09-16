@@ -19,7 +19,7 @@ const generateSummary = async (user) => {
       for await (const deposit_id of user.deposit){
           const deposit = await Deposit.findOne({_id: deposit_id});
           data = await deposit.percentageChange();
-          body = body + `Bank: ${deposit.bank}\nAccount Number: ${deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(deposit.Summary.currentBalance)}\nPercentage Change: ${data.percent}%\n\n`;
+          body = body + `Bank: ${deposit.bank}\nAccount Number: ${deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(deposit.Summary.currentBalance)}\nPercentage Change: ${data.percent > 0 ? '+':''}${data.percent}%\n\n`;
           netWorth = netWorth + parseInt(deposit.Summary.currentBalance)
           prev = prev + data.prev;
       }
@@ -30,7 +30,7 @@ const generateSummary = async (user) => {
       for await (const term_deposit_id of user.termDeposit){
           const term_deposit = await TermDeposit.findOne({_id: term_deposit_id});
           data = await term_deposit.percentageChange();
-          body = body + `Bank: ${term_deposit.bank}\nAccount Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(term_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
+          body = body + `Bank: ${term_deposit.bank}\nAccount Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(term_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent > 0 ? '+':''}${data.percent}%\n\n`;
           netWorth = netWorth + parseInt(term_deposit.Summary.currentValue)
           prev = prev + data.prev;
       }
@@ -41,7 +41,7 @@ const generateSummary = async (user) => {
       for await (const recurring_deposit_id of user.recurringDeposit){
           const recurring_deposit = await RecurringDeposit.findOne({_id: recurring_deposit_id});
           data = await recurring_deposit.percentageChange();
-          body = body + `Bank: ${recurring_deposit.bank}\nAccount Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${fmt.format(recurring_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
+          body = body + `Bank: ${recurring_deposit.bank}\nAccount Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${fmt.format(recurring_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent > 0 ? '+':''}${data.percent}%\n\n`;
           netWorth = netWorth + parseInt(recurring_deposit.Summary.currentValue)
           prev = prev + data.prev;
       }
@@ -49,7 +49,7 @@ const generateSummary = async (user) => {
     
     let change = (netWorth-prev)/(prev);
     change = change.toFixed(2)
-    body = body + `NET WORTH: INR ${fmt.format(netWorth)}\nPercentage change: ${change}%`
+    body = body + `NET WORTH: INR ${fmt.format(netWorth)}\nPercentage change: ${change > 0 ? '+':''}${change}%`
     console.log(body)
 
     // client.messages
