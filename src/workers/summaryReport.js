@@ -13,32 +13,40 @@ const generateSummary = async (user) => {
     let prev = 0;
     let body = "Your monthly account summary: \n\n";
     let data;
-    body = body + "DEPOSITS: \n";
-    for await (const deposit_id of user.deposit){
-        const deposit = await Deposit.findOne({_id: deposit_id});
-        data = await deposit.percentageChange();
-        body = body + `Bank: ${deposit.bank}\nAccount Number: ${deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(deposit.Summary.currentBalance)}\nPercentage Change: ${data.percent}%\n\n`;
-        netWorth = netWorth + parseInt(deposit.Summary.currentBalance)
-        prev = prev + data.prev;
+    
+    if(user.deposit.length > 0){
+      body = body + "DEPOSITS: \n";
+      for await (const deposit_id of user.deposit){
+          const deposit = await Deposit.findOne({_id: deposit_id});
+          data = await deposit.percentageChange();
+          body = body + `Bank: ${deposit.bank}\nAccount Number: ${deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(deposit.Summary.currentBalance)}\nPercentage Change: ${data.percent}%\n\n`;
+          netWorth = netWorth + parseInt(deposit.Summary.currentBalance)
+          prev = prev + data.prev;
+      }
     }
+    
+    if(user.termDeposit.length > 0){
+      body = body + "TERM_DEPOSITS: \n";
+      for await (const term_deposit_id of user.termDeposit){
+          const term_deposit = await TermDeposit.findOne({_id: term_deposit_id});
+          data = await term_deposit.percentageChange();
+          body = body + `Bank: ${term_deposit.bank}\nAccount Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(term_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
+          netWorth = netWorth + parseInt(term_deposit.Summary.currentValue)
+          prev = prev + data.prev;
+      }
+    }    
 
-    body = body + "TERM_DEPOSITS: \n";
-    for await (const term_deposit_id of user.termDeposit){
-        const term_deposit = await TermDeposit.findOne({_id: term_deposit_id});
-        data = await term_deposit.percentageChange();
-        body = body + `Bank: ${term_deposit.bank}\nAccount Number: ${term_deposit.maskedAccountNumber}\nCurrent Balance: INR ${fmt.format(term_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
-        netWorth = netWorth + parseInt(term_deposit.Summary.currentValue)
-        prev = prev + data.prev;
+    if(user.recurringDeposit.length > 0){
+      body = body + "RECURRING_DEPOSITS: \n";
+      for await (const recurring_deposit_id of user.recurringDeposit){
+          const recurring_deposit = await RecurringDeposit.findOne({_id: recurring_deposit_id});
+          data = await recurring_deposit.percentageChange();
+          body = body + `Bank: ${recurring_deposit.bank}\nAccount Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${fmt.format(recurring_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
+          netWorth = netWorth + parseInt(recurring_deposit.Summary.currentValue)
+          prev = prev + data.prev;
+      }
     }
-
-    body = body + "RECURRING_DEPOSITS: \n";
-    for await (const recurring_deposit_id of user.recurringDeposit){
-        const recurring_deposit = await RecurringDeposit.findOne({_id: recurring_deposit_id});
-        data = await recurring_deposit.percentageChange();
-        body = body + `Bank: ${recurring_deposit.bank}\nAccount Number: ${recurring_deposit.maskedAccountNumber}\nCurrent Balance: ${fmt.format(recurring_deposit.Summary.currentValue)}\nPercentage Change: ${data.percent}%\n\n`;
-        netWorth = netWorth + parseInt(recurring_deposit.Summary.currentValue)
-        prev = prev + data.prev;
-    }
+    
     let change = (netWorth-prev)/(prev);
     change = change.toFixed(2)
     body = body + `NET WORTH: INR ${fmt.format(netWorth)}\nPercentage change: ${change}%`
